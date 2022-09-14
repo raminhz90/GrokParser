@@ -1,6 +1,5 @@
 namespace GrokParser
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
@@ -96,7 +95,7 @@ namespace GrokParser
                         _ = result.Remove(name);
                         if (this.typeMaps.TryGetValue(name, out var type))
                         {
-                            result.Add(name, this.MapToType(type, value));
+                            result.Add(name, TypeMapper.TypeMapper.Map(type, value));
                         }
                         else
                         {
@@ -110,22 +109,6 @@ namespace GrokParser
                 }
             }
         }
-
-        private dynamic MapToType(string type, string value) => type switch
-        {
-            "int" => int.Parse(value),
-            "long" => long.Parse(value),
-            "float" => float.Parse(value),
-            "double" => double.Parse(value),
-            "bool" => bool.Parse(value),
-            "datetime" => DateTime.Parse(value),
-            "guid" => Guid.Parse(value),
-            "uri" => new Uri(value),
-            "datetimeoffset" => DateTimeOffset.Parse(value),
-            "timespan" => TimeSpan.Parse(value),
-            "string" => value,
-            _ => value,
-        };
     }
 
 }
