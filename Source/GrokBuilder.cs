@@ -2,6 +2,7 @@ namespace GrokParser
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
@@ -76,11 +77,15 @@ namespace GrokParser
                         continue;
                     }
 
-                    var uniqeuName = NameGenerator.UniqueNameGenerator.GenerateUniqueName(patternId, counter, i);
-                    this.nameMaps.Add(uniqeuName, groks[i].Groups[1].Value);
-                    if (!string.IsNullOrEmpty(groks[i].Groups[2].Value))
+                    if (!string.IsNullOrWhiteSpace(groks[i].Groups[2].Value))
                     {
-                        this.typeMaps.Add(uniqeuName, groks[i].Groups[2].Value.ToLowerInvariant());
+                        var uniqeuName = NameGenerator.UniqueNameGenerator.GenerateUniqueName(patternId, counter, i);
+                        this.nameMaps.Add(uniqeuName, groks[i].Groups[2].Value);
+
+                        if (!string.IsNullOrEmpty(groks[i].Groups[3].Value))
+                        {
+                            this.typeMaps.Add(uniqeuName, groks[i].Groups[3].Value.ToLowerInvariant());
+                        }
                     }
                 }
                 regexFromGrok = GrokPatternExtractor.Replace(regexFromGrok, this.GrokReplace);
@@ -101,13 +106,13 @@ namespace GrokParser
                 throw new ArgumentNullException(nameof(match));
             }
             var pattern = match.Groups[1].Value;
-            var name = match.Groups[2].Value;
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(match.Groups[2].Value))
             {
                 return this.ReplaceUnNamedGrok(pattern);
             }
             else
             {
+                var name = this.nameMaps.Where(x => x.Value == match.Groups[2].Value).Select(x => x.Key).First();
                 return this.ReplaceNamedGrok(pattern, name);
             }
         }

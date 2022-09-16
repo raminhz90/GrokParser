@@ -31,7 +31,6 @@ namespace GrokParser
             this.typeMaps = typeMaps;
             this.filters = filters;
         }
-
         public Dictionary<string, dynamic> Parse(string input)
         {
             var result = new Dictionary<string, dynamic>();
@@ -93,7 +92,7 @@ namespace GrokParser
                     if (this.nameMaps.TryGetValue(groupName, out var name))
                     {
                         _ = result.Remove(name);
-                        if (this.typeMaps.TryGetValue(name, out var type))
+                        if (this.typeMaps.TryGetValue(groupName, out var type))
                         {
                             result.Add(name, TypeMapper.TypeMapper.Map(type, value));
                         }
