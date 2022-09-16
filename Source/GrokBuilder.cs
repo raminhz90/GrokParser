@@ -13,29 +13,30 @@ namespace GrokParser
         private readonly string grokString;
         private readonly Dictionary<string, string> nameMaps = new Dictionary<string, string>();
         private readonly Dictionary<string, string> typeMaps = new Dictionary<string, string>();
-        private readonly IDictionary<string, string>? customPatterns;
-        private readonly IDictionary<string, string>? postProcessors;
-        private readonly IEnumerable<string>? filters;
+        private readonly IDictionary<string, string> customPatterns = new Dictionary<string, string>();
+        private readonly List<KeyValuePair<string, string>> postProcessors = new List<KeyValuePair<string, string>>();
+        private readonly List<string> filters = new List<string>();
         public GrokBuilder(string grok,
                            IDictionary<string, string>? customPatterns = null,
-                           IDictionary<string, string>? postProcessors = null,
+                           IEnumerable<KeyValuePair<string, string>>? postProcessors = null,
                            IEnumerable<string>? filters = null)
         {
             this.grokString = grok;
-            this.customPatterns = customPatterns;
-            this.postProcessors = postProcessors;
-            this.filters = filters;
+            this.customPatterns = customPatterns ?? this.customPatterns;
+            this.postProcessors = postProcessors?.ToList() ?? this.postProcessors;
+            this.filters = filters?.ToList() ?? this.filters;
         }
         public IGrokParser Build()
         {
             var mainRegex = this.BuildRegexFromGrok(this.grokString, 0);
-            var postProcessors = new Dictionary<string, Regex>();
+            var postProcessors = new List<KeyValuePair<string, Regex>>();
             if (this.postProcessors != null)
             {
                 var counter = 1;
                 foreach (var item in this.postProcessors)
                 {
-                    postProcessors.Add(item.Key, this.BuildRegexFromGrok(this.grokString, counter));
+                    var postprocessor = new KeyValuePair<string, Regex>(item.Key, this.BuildRegexFromGrok(this.grokString, counter));
+                    postProcessors.Add(postprocessor);
                     counter++;
                 }
             }
@@ -58,6 +59,50 @@ namespace GrokParser
             var result = new Grok(mainRegex, postProcessors, this.nameMaps, this.typeMaps, this.filters);
             return Task.FromResult<IGrokParser>(result);
         }
+
+        public GrokBuilder AddPostProcessor(string name, string pattern)
+        {
+            if (this.postProcessors == null)
+            {
+                throw new InvalidOperationException("Post processors are not supported");
+            }
+            this.postProcessors.Add(new KeyValuePair<string, string>(name, pattern));
+            return this;
+        }
+
+        public GrokBuilder AddFilter(string filter)
+        {
+            this.filters.Add(filter);
+            return this;
+        }
+        public GrokBuilder AddFilter(IEnumerable<string> filters)
+        {
+            if (this.filters == null)
+            {
+                throw new InvalidOperationException("Filters are not supported");
+            }
+            this.filters.AddRange(filters);
+            return this;
+        }
+        public GrokBuilder AddCustomPattern(string name, string pattern, bool replace = false)
+        {
+            if (this.customPatterns.ContainsKey(name))
+            {
+                if (replace)
+                {
+                    _ = this.customPatterns.Remove(name);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Custom pattern with name {name} already exists");
+                }
+            }
+            this.customPatterns.Add(name, pattern);
+            return this;
+        }
+
+
+
         private Regex BuildRegexFromGrok(string pattern, int patternId, CancellationToken cancellationToken = default)
         {
 
@@ -99,6 +144,8 @@ namespace GrokParser
             return new Regex(regexFromGrok, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         }
+
+
         private string GrokReplace(Match match)
         {
             if (match is null)

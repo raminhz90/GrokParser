@@ -14,16 +14,16 @@ namespace GrokParser
     internal class Grok : IGrokParser
     {
         private readonly Regex mainRegex;
-        private readonly IDictionary<string, Regex>? postProcessors;
+        private readonly IEnumerable<KeyValuePair<string, Regex>> postProcessors;
         private readonly IDictionary<string, string> nameMaps;
         private readonly IDictionary<string, string> typeMaps;
         private readonly IEnumerable<string>? filters;
 
         public Grok(Regex mainRegex,
-                    IDictionary<string, Regex>? postProcessors,
+                    IEnumerable<KeyValuePair<string, Regex>> postProcessors,
                     IDictionary<string, string> nameMaps,
                     IDictionary<string, string> typeMaps,
-                    IEnumerable<string>? filters)
+                    IEnumerable<string> filters)
         {
             this.mainRegex = mainRegex;
             this.postProcessors = postProcessors;
