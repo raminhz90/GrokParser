@@ -1,5 +1,6 @@
 #pragma warning disable CA1707 // Identifiers should not contain underscores
-namespace Test;
+
+namespace GrokParser.Test;
 
 using GrokParser.NameGenerator;
 
