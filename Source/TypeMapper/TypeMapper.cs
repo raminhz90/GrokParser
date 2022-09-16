@@ -47,6 +47,11 @@ namespace GrokParser.TypeMapper
                     {
                         return result;
                     }
+                    // parse with syslog format
+                    if (DateTime.TryParseExact(value, "MMM dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out result))
+                    {
+                        return result;
+                    }
                     return value;
                 }
                 case "long":
