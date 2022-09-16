@@ -5,12 +5,6 @@ namespace GrokParser
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
-
-    public interface IGrokParser
-    {
-        public Dictionary<string, dynamic> Parse(string input);
-        public Task<Dictionary<string, dynamic>> ParseAsync(string input, CancellationToken cancellationToken);
-    }
     internal class Grok : IGrokParser
     {
         private readonly Regex mainRegex;
@@ -55,7 +49,7 @@ namespace GrokParser
             return result;
         }
 
-        public Task<Dictionary<string, dynamic>> ParseAsync(string input, CancellationToken cancellationToken)
+        public Task<Dictionary<string, dynamic>> ParseAsync(string input, CancellationToken cancellationToken=default)
         {
             var result = new Dictionary<string, dynamic>();
             // process main regex

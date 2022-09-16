@@ -16,6 +16,13 @@ namespace GrokParser
         private readonly IDictionary<string, string> customPatterns = new Dictionary<string, string>();
         private readonly List<KeyValuePair<string, string>> postProcessors = new List<KeyValuePair<string, string>>();
         private readonly List<string> filters = new List<string>();
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GrokBuilder"/> class.
+        /// </summary>
+        /// <param name="grok"></param>
+        /// <param name="customPatterns"></param>
+        /// <param name="postProcessors"></param>
+        /// <param name="filters"></param>
         public GrokBuilder(string grok,
                            IDictionary<string, string>? customPatterns = null,
                            IEnumerable<KeyValuePair<string, string>>? postProcessors = null,
@@ -26,6 +33,10 @@ namespace GrokParser
             this.postProcessors = postProcessors?.ToList() ?? this.postProcessors;
             this.filters = filters?.ToList() ?? this.filters;
         }
+        /// <summary>
+        /// Builds a grok parser from configured grokBuilder object
+        /// </summary>
+        /// <returns>an object implementing IGrokParser Interface</returns>
         public IGrokParser Build()
         {
             var mainRegex = this.BuildRegexFromGrok(this.grokString, 0);
@@ -43,7 +54,12 @@ namespace GrokParser
             return new Grok(mainRegex, postProcessors, this.nameMaps, this.typeMaps, this.filters);
 
         }
-        public Task<IGrokParser> BuildAsync(CancellationToken cancellationToken)
+        /// <summary>
+        ///  Builds a grok parser from configured grokBuilder object
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns>a task that returns a grok parser from configured grokBuilder object</returns>
+        public Task<IGrokParser> BuildAsync(CancellationToken cancellationToken = default)
         {
             var mainRegex = this.BuildRegexFromGrok(this.grokString, 0, cancellationToken);
             var postProcessors = new Dictionary<string, Regex>();
@@ -59,22 +75,33 @@ namespace GrokParser
             var result = new Grok(mainRegex, postProcessors, this.nameMaps, this.typeMaps, this.filters);
             return Task.FromResult<IGrokParser>(result);
         }
-
+        /// <summary>
+        /// adds a new post processor to the grokBuilder object
+        /// </summary>
+        /// <param name="name">name of the filed to parse with postprocessor</param>
+        /// <param name="pattern">the pattern with witch the filed will be parsed</param>
+        /// <returns>Same GrokBuilder object</returns>
         public GrokBuilder AddPostProcessor(string name, string pattern)
         {
-            if (this.postProcessors == null)
-            {
-                throw new InvalidOperationException("Post processors are not supported");
-            }
             this.postProcessors.Add(new KeyValuePair<string, string>(name, pattern));
             return this;
         }
-
+        /// <summary>
+        /// adds a new filter to the grokBuilder object
+        /// </summary>
+        /// <param name="filter">the filed to be removed from grok parse result</param>
+        /// <returns></returns>
         public GrokBuilder AddFilter(string filter)
         {
             this.filters.Add(filter);
             return this;
         }
+        /// <summary>
+        /// adds  new filters to the grokBuilder object
+        /// </summary>
+        /// <param name="filters">an IEnumerable with names of filed to be removed from parsed grok reasult</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public GrokBuilder AddFilter(IEnumerable<string> filters)
         {
             if (this.filters == null)
@@ -84,6 +111,14 @@ namespace GrokParser
             this.filters.AddRange(filters);
             return this;
         }
+        /// <summary>
+        /// adds a new Pattern to the grokBuilder object
+        /// </summary>
+        /// <param name="name">name of the grok pattern</param>
+        /// <param name="pattern">the grok pattern</param>
+        /// <param name="replace">to replace the pattern if it already exists</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public GrokBuilder AddCustomPattern(string name, string pattern, bool replace = false)
         {
             if (this.customPatterns.ContainsKey(name))
@@ -100,9 +135,14 @@ namespace GrokParser
             this.customPatterns.Add(name, pattern);
             return this;
         }
-
-
-
+        /// <summary>
+        /// Process the grok string and returns a regex string
+        /// </summary>
+        /// <param name="pattern">pattern to be processed</param>
+        /// <param name="patternId">Id of pattern in order to generate unique name for each named group</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>regex equivelant to grok</returns>
+        /// <exception cref="OperationCanceledException"></exception>
         private Regex BuildRegexFromGrok(string pattern, int patternId, CancellationToken cancellationToken = default)
         {
 
@@ -113,26 +153,29 @@ namespace GrokParser
                 var groks = GrokPatternExtractor.Matches(regexFromGrok);
                 if (groks == null || groks.Count == 0)
                 {
+                    // no more grok patterns to process
                     break;
                 }
                 for (var i = 0; i < groks.Count; i++)
                 {
                     if (groks[i] == null)
                     {
+                        // null check
                         continue;
                     }
-
+                    // generate unique name for each named grok
                     if (!string.IsNullOrWhiteSpace(groks[i].Groups[2].Value))
                     {
                         var uniqeuName = NameGenerator.UniqueNameGenerator.GenerateUniqueName(patternId, counter, i);
                         this.nameMaps.Add(uniqeuName, groks[i].Groups[2].Value);
-
+                        // map the type of the named grok
                         if (!string.IsNullOrEmpty(groks[i].Groups[3].Value))
                         {
                             this.typeMaps.Add(uniqeuName, groks[i].Groups[3].Value.ToLowerInvariant());
                         }
                     }
                 }
+                // replace grok  with pattern
                 regexFromGrok = GrokPatternExtractor.Replace(regexFromGrok, this.GrokReplace);
                 counter++;
 
@@ -144,8 +187,7 @@ namespace GrokParser
             return new Regex(regexFromGrok, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         }
-
-
+        // replaces grok  with it's pattern
         private string GrokReplace(Match match)
         {
             if (match is null)
