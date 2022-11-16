@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Grok Parser</Title>
+    <PackageId>Ramin.GrokParser</PackageId> 
+    <Version>1.0.0</Version> 
+    <Authors>Ramin Hosseinzad</Authors> 
+    <PackageTags>Grok,Elastic,Kibana,SIEM,Log,Parser</PackageTags> 
+    <Description>Using this package you can parse strings using grok patterns</Description>
   </PropertyGroup>
 
   <ItemGroup>
