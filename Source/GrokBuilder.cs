@@ -9,7 +9,7 @@ namespace GrokParser
 
     public class GrokBuilder
     {
-        private static readonly Regex GrokPatternExtractor = new Regex(@"%{(\w+)(?::?)([\w\.]+)?(?::?)(\w+)?}", RegexOptions.Compiled);
+        private static readonly Regex GrokPatternExtractor = new Regex(@"%{(\w+):([\w\.@]+)?:?(\w+)?}", RegexOptions.Compiled);
         private readonly string grokString;
         private readonly Dictionary<string, string> nameMaps = new Dictionary<string, string>();
         private readonly Dictionary<string, string> typeMaps = new Dictionary<string, string>();
