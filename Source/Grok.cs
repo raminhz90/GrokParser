@@ -12,7 +12,10 @@ namespace GrokParser
         private readonly IDictionary<string, string> nameMaps;
         private readonly IDictionary<string, string> typeMaps;
         private readonly IEnumerable<string>? filters;
-
+        /// <summary>
+        /// Gets the regex equivelant of the grok pattern.
+        /// </summary>
+        public string Pattern => this.mainRegex.ToString();
         public Grok(Regex mainRegex,
                     IEnumerable<KeyValuePair<string, Regex>> postProcessors,
                     IDictionary<string, string> nameMaps,
@@ -25,6 +28,11 @@ namespace GrokParser
             this.typeMaps = typeMaps;
             this.filters = filters;
         }
+        /// <summary>
+        /// Parses the input string and returns a dictionary of name grok patterns and their values.
+        /// </summary>
+        /// <param name="input">The input string to parse.</param>
+        /// <returns>A dictionary of name grok patterns and their values.</returns>
         public Dictionary<string, dynamic> Parse(string input)
         {
             var result = new Dictionary<string, dynamic>();
@@ -48,8 +56,12 @@ namespace GrokParser
             }
             return result;
         }
-
-        public Task<Dictionary<string, dynamic>> ParseAsync(string input, CancellationToken cancellationToken=default)
+        /// <summary>
+        /// asynchronously parses the input string and returns a dictionary of name grok patterns and their values.
+        /// </summary>
+        /// <param name="input">The input string to parse.</param>
+        /// <returns>A dictionary of name grok patterns and their values.</returns>
+        public Task<Dictionary<string, dynamic>> ParseAsync(string input, CancellationToken cancellationToken = default)
         {
             var result = new Dictionary<string, dynamic>();
             // process main regex

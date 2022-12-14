@@ -16,6 +16,7 @@ namespace GrokParser
         private readonly IDictionary<string, string> customPatterns = new Dictionary<string, string>();
         private readonly List<KeyValuePair<string, string>> postProcessors = new List<KeyValuePair<string, string>>();
         private readonly List<string> filters = new List<string>();
+        private readonly TimeSpan timeout;
         /// <summary>
         /// Initializes a new instance of the <see cref="GrokBuilder"/> class.
         /// </summary>
@@ -23,15 +24,18 @@ namespace GrokParser
         /// <param name="customPatterns"></param>
         /// <param name="postProcessors"></param>
         /// <param name="filters"></param>
+        /// <param name="timeout">defaults to 1 second</param>
         public GrokBuilder(string grok,
                            IDictionary<string, string>? customPatterns = null,
                            IEnumerable<KeyValuePair<string, string>>? postProcessors = null,
-                           IEnumerable<string>? filters = null)
+                           IEnumerable<string>? filters = null,
+                           TimeSpan timeout = default)
         {
             this.grokString = grok;
             this.customPatterns = customPatterns ?? this.customPatterns;
             this.postProcessors = postProcessors?.ToList() ?? this.postProcessors;
             this.filters = filters?.ToList() ?? this.filters;
+            this.timeout = timeout == default ? TimeSpan.FromSeconds(1) : timeout;
         }
         /// <summary>
         /// Builds a grok parser from configured grokBuilder object
@@ -184,7 +188,7 @@ namespace GrokParser
             {
                 throw new OperationCanceledException();
             }
-            return new Regex(regexFromGrok, RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+            return new Regex(regexFromGrok, RegexOptions.Compiled | RegexOptions.ExplicitCapture, this.timeout);
 
         }
         // replaces grok  with it's pattern
