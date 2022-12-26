@@ -25,11 +25,12 @@ public class ParserTests
     public Task Parse_Should_Return_Expected_Count()
     {
         // Arrange
-        const string grokPattern = "%{MONTHDAY:month:int}-%{MONTHDAY:day:int}-%{MONTHDAY:year:int} %{TIME:timestamp}";
+        const string grokPattern = "%{MONTHDAY:month:int}-%{MONTHDAY:day:int}-%{MONTHDAY:year:int} %{TIME:@timestamp}";
         var sut = new GrokBuilder(grokPattern).Build();
         const string logs = @"25-26-3 8:49:36.48423254";
         // Act
         var grokResult = sut.Parse(logs);
+        File.WriteAllText("regex.txt", ((Grok)sut).Pattern);
         // Assert
         Assert.NotNull(grokResult);
         Assert.Equal(4, grokResult.Count);
@@ -39,7 +40,7 @@ public class ParserTests
     public Task Parse_Should_Return_Expected_Result()
     {
         // Arrange
-        const string grokPattern = "%{MONTHDAY:month}-%{MONTHDAY:day}-%{MONTHDAY:year} %{TIME:timestamp};%{WORD:id};%{LOGLEVEL:loglevel};%{WORD:func};%{GREEDYDATA:msg}";
+        const string grokPattern = "%{MONTHDAY:month}-%{MONTHDAY:day}-%{MONTHDAY:year} %{TIME:@timestamp};%{WORD:id};%{LOGLEVEL:loglevel};%{WORD:func};%{GREEDYDATA:msg}";
         var sut = new GrokBuilder(grokPattern).Build();
         const string logs = @"04-29-02 1:33:04,94034419;ydza3IBYKHf9Pz04Oz5;WAR;mwBlI3gRzliyZI;The quick brown fox jumps over the lazy dog";
         //this.output.WriteLine(sut.GetRegex());
@@ -51,7 +52,7 @@ public class ParserTests
         Assert.Equal("04", grokResult["month"]);
         Assert.Equal("29", grokResult["day"]);
         Assert.Equal("02", grokResult["year"]);
-        Assert.Equal("1:33:04,94034419", grokResult["timestamp"]);
+        Assert.Equal("1:33:04,94034419", grokResult["@timestamp"]);
         Assert.Equal("ydza3IBYKHf9Pz04Oz5", grokResult["id"]);
         Assert.Equal("WAR", grokResult["loglevel"]);
         Assert.Equal("mwBlI3gRzliyZI", grokResult["func"]);
