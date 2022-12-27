@@ -30,7 +30,6 @@ public class ParserTests
         const string logs = @"25-26-3 8:49:36.48423254";
         // Act
         var grokResult = sut.Parse(logs);
-        File.WriteAllText("regex.txt", ((Grok)sut).Pattern);
         // Assert
         Assert.NotNull(grokResult);
         Assert.Equal(4, grokResult.Count);
