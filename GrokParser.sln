@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrokParser", "Source\GrokPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrokParser.Test", "Test\GrokParser.Test.csproj", "{A99A1BDD-D552-4E3D-8C5F-833AFA5C4741}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{472E8D93-8501-41D5-94BC-5F0774DCA5D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -16,6 +18,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{472E8D93-8501-41D5-94BC-5F0774DCA5D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{472E8D93-8501-41D5-94BC-5F0774DCA5D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82B508C7-9C27-49E3-8A1C-6DFF951276AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{82B508C7-9C27-49E3-8A1C-6DFF951276AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82B508C7-9C27-49E3-8A1C-6DFF951276AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
